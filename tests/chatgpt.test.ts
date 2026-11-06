@@ -103,7 +103,7 @@ describe('ChatGPT', () => {
   });
 
   it.each(['http', 'stream'])('pausa solicitações após limite de uso (%s)', async (kind) => {
-    const dir = mkdtempSync(path.join(process.cwd(), 'work', 'siwc-')); dirs.push(dir);
+    const dir = mkdtempSync(path.join(process.cwd(), 'siwc-')); dirs.push(dir);
     const saved = { hostId: 'host', credential: { clientId: 'client', subject: 'sub', idToken: 'identity', accessToken: 'token', expiresAt: Date.now() + 3600000, scopes: ['chatgpt.tokens.use.direct'] } };
     writeFileSync(path.join(dir, 'chatgpt-session.bin'), JSON.stringify(saved).split('').reverse().join(''));
     let calls = 0;
@@ -126,7 +126,7 @@ describe('ChatGPT', () => {
   });
 
   it.each(['models', 'refresh'])('mantém pausa após erro de limite em %s e recriação do serviço', async phase => {
-    const dir = mkdtempSync(path.join(process.cwd(), 'work', 'siwc-')); dirs.push(dir);
+    const dir = mkdtempSync(path.join(process.cwd(), 'siwc-')); dirs.push(dir);
     const saved = { hostId: 'host', credential: { clientId: 'client', subject: 'sub', idToken: 'identity', accessToken: 'token', refreshToken: 'refresh', expiresAt: phase === 'refresh' ? 0 : Date.now() + 3600000, scopes: ['chatgpt.tokens.use.direct'] } };
     writeFileSync(path.join(dir, 'chatgpt-session.bin'), JSON.stringify(saved).split('').reverse().join(''));
     let calls = 0;
@@ -143,7 +143,7 @@ describe('ChatGPT', () => {
   });
 
   it('aguarda a renovação antes de começar uma nova autorização', async () => {
-    const dir = mkdtempSync(path.join(process.cwd(), 'work', 'siwc-')); dirs.push(dir);
+    const dir = mkdtempSync(path.join(process.cwd(), 'siwc-')); dirs.push(dir);
     const file = path.join(dir, 'chatgpt-session.bin');
     const saved = { hostId: 'host', credential: { clientId: 'oaiapp_test', subject: 'sub', idToken: 'old-id', accessToken: 'old-token', refreshToken: 'old-refresh', expiresAt: 0, scopes: ['chatgpt.tokens.use.direct'] } };
     writeFileSync(file, JSON.stringify(saved).split('').reverse().join(''));
@@ -166,6 +166,7 @@ describe('ChatGPT', () => {
     expect(persisted.credential.refreshToken).toBe('rotated');
   });
 });
+
 
 
 
