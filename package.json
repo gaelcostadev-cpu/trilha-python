@@ -1,0 +1,28 @@
+{
+  "name": "trilha-python",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Escola local de programação para Windows",
+  "main": "dist/main/main/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.main.json && tsc -p tsconfig.json && vite build",
+    "start": "npm run build && electron .",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/sql.js": "^1.4.9",
+    "electron": "^45.2.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  }
+}
