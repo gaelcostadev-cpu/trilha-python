@@ -1,0 +1,2 @@
+runtime-manifest.json -text whitespace=cr-at-eol
+gate/bootstrap.py -text whitespace=cr-at-eol

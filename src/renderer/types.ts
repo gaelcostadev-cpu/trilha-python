@@ -20,7 +20,6 @@ export interface SchoolState {
   messages: { id: string; scope: 'general' | 'lesson'; lessonId?: string; author: string; text: string }[];
   teacher: { authenticated: boolean; personality: TeacherPersonality; usagePaused: boolean; showWelcome: boolean };
   onlineValidated: boolean;
-  executionAvailable: boolean;
 }
 export interface RuntimeStatus { available: boolean; reason: string; }
 export interface PythonResult {

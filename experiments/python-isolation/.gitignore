@@ -25,3 +25,6 @@ job-proof/job-proof-*/
 
 job-candidate/candidate-*/
 job-candidate/__pycache__/
+
+safe-launcher/official-runtime/
+safe-launcher/__pycache__/

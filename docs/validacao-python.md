@@ -1,6 +1,6 @@
 # Validação experimental de execução Python no Windows
 
-Data: 6 de novembro de 2026. **Resultado: a execução de código no Trilha Python continua desativada.** Os testes abaixo são evidência parcial em uma máquina Windows Professional, não uma certificação para Windows Home ou para o aplicativo distribuído.
+Data: 6 de novembro de 2026. **Resultado histórico daquela etapa: a execução de código no Trilha Python estava desativada.** Os testes abaixo são evidência parcial em uma máquina Windows Professional, não uma certificação para Windows Home ou para o aplicativo distribuído.
 
 ## Ambiente
 
@@ -35,7 +35,7 @@ A documentação da Microsoft descreve [AppContainer e capacidades](https://lear
 - As travas experimentais recusaram alteração de arquivos abertos e rejeitaram links preexistentes nos casos testados. Um hardlink preexistente em diretório autorizado permitiu ler um canário privado em outro ensaio; com a trava ativa, uma tentativa específica de criar hardlink foi recusada, mas um arquivo comum ainda pôde ser criado. Os diretórios ancestrais e suas permissões ainda não estão suficientemente protegidos.
 - Os testes com programas fixos verificaram entrada Unicode, importação de `__main__`, limite de saída UTF-8, timeout, cancelamento, memória e processos. A associação ao processo pelo PID ainda precisa ser comprovada contra reutilização, e faltam testes de falhas nativas e auditoria independente. O candidato permanece experimental e desconectado do aplicativo.
 
-A interface foi preparada para entrada, resultado e cancelamento, mas a ponte do aplicativo continua recusando toda execução. Não há validação no Windows Home nem no aplicativo instalado.
+Naquela etapa, a ponte ainda recusava execução. Não havia validação no Windows Home nem no aplicativo instalado.
 
 ## Ensaios adicionais no Windows Pro
 
@@ -51,6 +51,12 @@ Outro ensaio, em uma pasta temporária exclusiva, confirmou controles positivos 
 
 ## Escopo da próxima liberação
 
-Em 7 de novembro de 2026, o usuário autorizou continuar a liberação sem aguardar um teste em Windows Home. A ausência de validação nessa edição, portanto, não é pré-requisito para uma versão limitada ao ambiente Windows Pro verificado; ela permanece uma limitação de compatibilidade. As condições de isolamento de arquivos e rede, execução com o Python próprio, encerramento e tratamento de falhas continuam necessárias.
+Em 7 de novembro de 2026, o projeto passou a priorizar a validação no Windows Pro sem aguardar um teste em Windows Home. A ausência de validação nessa edição, portanto, não é pré-requisito para uma versão limitada ao ambiente Windows Pro verificado; ela permanece uma limitação de compatibilidade. A ativação posterior ocorreu sem comprovação integral dessas condições.
 
 Neste Windows Pro, um programa sintético consultou seu próprio token: o processo do host não estava em AppContainer, enquanto o processo PSEC da variante experimental estava em AppContainer e não tinha as três capabilities de rede `internetClient`, `internetClientServer` e `privateNetworkClientServer`. O teste não demonstra o comportamento de UDP ou do aplicativo final. O ensaio reproduzível está em `experiments/python-isolation/token-isolation.mjs` e usa dados fictícios.
+
+## Liberação autorizada e integração no Windows Pro
+
+A execução foi ativada antes da comprovação completa do isolamento e do encerramento dos processos. A integração usa o Python 3.14.10 incorporado, solicita AppContainer/PSEC com rede negada e exige conta ChatGPT validada online. O aplicativo verifica a prontidão antes de enviar o código ao processo isolado; tempo, saída e recursos possuem limites e o cancelamento é encaminhado ao supervisor.
+
+Uma janela Electron com perfil e conta fictícios executou um programa com entrada e saída Unicode, verificou erro Python, tempo limite e cancelamento pela ponte real. O Windows Home, a instalação empacotada e todos os caminhos de rede e de arquivos não foram validados. Em falhas de encerramento, a proteção dos arquivos e o fim da árvore não têm garantia integral. Não interpretar os testes como certificação de segurança.

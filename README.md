@@ -9,10 +9,15 @@ Instale Node.js compatível com as dependências do `package-lock.json` e, no Wi
 ```powershell
 npm ci
 npx install-electron --no
+.\experiments\python-isolation\setup-launcher.ps1
 npm start
 ```
 
 A instalação requer acesso à internet. `npm run build` verifica tipos e compila; `npm test` executa os testes automatizados.
+
+## Execução Python
+
+O editor executa Python 3.14.10 incorporado com a biblioteca padrão em um processo isolado no Windows. O executor solicita política de negação de rede, limita tempo, memória e saída e permite cancelamento. A execução requer conta ChatGPT validada online e a preparação acima. A implementação foi testada no Windows Pro; o Windows Home e todas as possibilidades de escape não foram comprovados. O isolamento ainda não recebeu validação completa. Consulte [a validação](docs/validacao-python.md).
 
 ## Professor com ChatGPT
 
@@ -24,7 +29,7 @@ O login, a reabertura da sessão e uma resposta do professor foram verificados c
 
 ## O que ainda falta
 
-- Distribuir Python e comprovar o isolamento AppContainer no Windows Home, incluindo rede, arquivos pessoais, cancelamento e tempo limite. A execução de código está bloqueada até essa comprovação.
+- Validar o executor e sua distribuição em mais configurações, inclusive no Windows Home, e ampliar testes de isolamento de rede, arquivos e encerramento.
 - Ligar atividade, prova, diagnóstico, revisão e conquista a resultados confiáveis e persistir o progresso. Os testes atuais do domínio usam resultados simulados; a prova de funções exige uma verificação estrutural ainda inexistente.
 - Implementar inicialização com Windows, dias de estudo recorrentes, notificações, personagens evolutivos e itens equipáveis.
 - Importar, deduplicar, traduzir e vincular as cinco fontes externas, após conferir direitos e condições. Nenhuma foi importada nesta prévia. Veja [fontes e pesquisa](docs/fontes-e-pesquisa.md).

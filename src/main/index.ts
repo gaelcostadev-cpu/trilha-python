@@ -3,7 +3,7 @@ import path from 'node:path';
 import { skills } from '../domain';
 import { createChatGPTService } from './chatgpt';
 import { Store } from './store';
-import { registerPythonIpc } from './python-ipc';
+import { installPythonIntegration } from './python-integration';
 import { teacherContext, type Personality } from './teacher';
 
 let store: Store;
@@ -12,6 +12,8 @@ let teacher: ReturnType<typeof createChatGPTService>;
 let account = { connected: false, planEnabled: false, usagePaused: false };
 let checking: Promise<void>;
 let sending = false;
+let shutdownPython: (() => Promise<void>) | undefined;
+let quitReady = false;
 const personalities: Personality[] = ['acolhedor', 'direto', 'socratico'];
 const challengeIds = new Set(skills.flatMap(skill => [...skill.activities, skill.exam].map(item => item.id)));
 function personality(): Personality {
@@ -25,7 +27,7 @@ function state() {
     lessons: skills.map((skill, index) => ({ id: skill.id, title: skill.title, description: skill.description, status: index ? 'locked' : 'available', prerequisites: skill.prerequisite ? [skill.prerequisite] : [], code: drafts[skill.activities[0].id] ?? skill.activities[0].starter, hints: skill.activities[0].hints, prompt: skill.activities[0].prompt, activityId: skill.activities[0].id })),
     equipment: [], calendar: store.calendar(), messages: store.messages(),
     teacher: { authenticated: account.connected, personality: personality(), usagePaused: account.usagePaused, showWelcome: account.planEnabled && store.needsTeacherWelcome() },
-    onlineValidated: account.planEnabled, executionAvailable: false,
+    onlineValidated: account.planEnabled,
   };
 }
 function trusted(event: Electron.IpcMainInvokeEvent) {
@@ -35,7 +37,7 @@ const primary = app.requestSingleInstanceLock();
 if (!primary) app.quit();
 else {
 app.on('second-instance', () => {
-  if (!window) return;
+  if (!window || window.isDestroyed()) return;
   if (window.isMinimized()) window.restore();
   window.focus();
 });
@@ -44,7 +46,7 @@ app.whenReady().then(async () => {
   teacher = createChatGPTService({ dataDir: app.getPath('userData'), openExternal: url => shell.openExternal(url) });
   try { account = teacher.localStatus(); } catch { account = { connected: false, planEnabled: false, usagePaused: false }; }
   checking = teacher.status().then(status => { account = status; }).catch(() => { account = { ...account, planEnabled: false }; });
-  registerPythonIpc(ipcMain, trusted);
+  shutdownPython = installPythonIntegration(app, ipcMain, trusted, teacher);
   ipcMain.handle('school:open-usage', event => { trusted(event); return shell.openExternal('https://chatgpt.com/settings/usage'); });
   ipcMain.handle('school:state', async event => { trusted(event); await checking; return state(); });
   ipcMain.handle('school:sign-in', async event => {
@@ -102,4 +104,9 @@ app.whenReady().then(async () => {
   await window.loadFile(path.join(__dirname, '../../renderer/index.html'));
 }).catch(error => { console.error('Falha ao iniciar o aplicativo:', error); app.quit(); });
 }
+app.on('before-quit', event => {
+  if (quitReady || !shutdownPython) return;
+  event.preventDefault();
+  void shutdownPython().catch(error => console.error('Falha ao encerrar o Python:', error)).finally(() => { quitReady = true; app.quit(); });
+});
 app.on('window-all-closed', () => { store?.close(); app.quit(); });
