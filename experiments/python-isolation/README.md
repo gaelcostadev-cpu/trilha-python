@@ -42,3 +42,12 @@ O teste externo faz somente uma conexão de controle a `1.1.1.1:443`. Sem `--ext
 Os ensaios sintéticos sobre associação ao Job e limites herdados estão em [job-proof/RESULTADOS.md](job-proof/RESULTADOS.md). Eles são separados do aplicativo e não aceitam programas de estudantes.
 
 Um candidato adicional, restrito a casos sintéticos, está em [job-candidate/LEIA-ME.md](job-candidate/LEIA-ME.md). Ele não recebe código de estudantes e não está integrado ao aplicativo.
+
+A bateria `run-tests.ps1` também verifica se o token da variante `locked-memory-runner` está em AppContainer sem as três permissões de rede comuns. Para executar somente essa verificação, use o Electron do projeto como Node:
+
+```powershell
+$env:ELECTRON_RUN_AS_NODE='1'
+..\..\node_modules\electron\dist\electron.exe token-isolation.mjs
+```
+
+O teste não exibe identificadores de segurança. Ele não prova o comportamento de UDP nem a segurança do aplicativo final.

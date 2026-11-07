@@ -13,6 +13,8 @@ try {
     $process = Start-Process -FilePath $electron -ArgumentList @('"' + $script + '"') -WorkingDirectory $PSScriptRoot -WindowStyle Hidden -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Falha em $test. Consulte o resultado local." }
   }
+  & $electron (Join-Path $PSScriptRoot 'token-isolation.mjs') | Out-Host
+  if ($LASTEXITCODE -ne 0) { throw 'Falha no teste de permissões de rede.' }
   $basic = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot 'broker-tests.json') | ConvertFrom-Json
   $resources = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot 'broker-security-tests.json') | ConvertFrom-Json
   if (@($basic.tests | Where-Object { -not $_.ok }).Count -or @($resources.tests | Where-Object { -not $_.ok }).Count) { throw 'Um dos testes de execução ou de recursos falhou.' }
