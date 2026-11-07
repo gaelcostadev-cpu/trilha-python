@@ -1,0 +1,20 @@
+# Ensaios sintéticos do Job herdado
+
+Execução em Windows 10.0.26200.0, Electron 45.2.3 e MXC SDK 1.0.1. Os programas executados são fixos e não contêm código de estudantes. O acesso necessário para criar o PSEC foi aprovado; no ambiente restrito, o mesmo lançamento falhou tanto no controle quanto dentro do Job com HRESULT 0x800706D9.
+
+O supervisor cria um Job sem permissões de breakaway e inicia o intermediário suspenso. Ele associa o handle real do intermediário antes de retomar a execução. O MXC iniciou um Python isolado, e `IsProcessInJob` confirmou que o processo identificado pelo SDK estava vivo e no mesmo Job. O fechamento do último handle do Job encerrou o intermediário e o Python. Em três falhas injetadas após a associação, após a retomada e com o handle do Python aberto, os processos observados foram encerrados e a contagem de handles do supervisor permaneceu igual após aquecimento.
+
+Os ensaios de comportamento usaram o mesmo arranjo e verificaram a associação do Python ao Job. Resultados observados:
+
+| Ensaio | Controle positivo | Condição restrita |
+| --- | --- | --- |
+| `OpenProcess(PROCESS_DUP_HANDLE)` do supervisor | Processo no host abriu o supervisor | PSEC recebeu erro 5 (acesso negado) |
+| `VirtualAlloc` de 640 MiB | Host e PSEC com limite por processo de 1 GiB conseguiram | PSEC com limite por processo de 512 MiB recebeu erro 1455 |
+| Criação de subprocesso | PSEC com limite de 16 processos criou subprocesso, exit 0 | PSEC com limite de 2 processos recebeu erro 1816 |
+| Morte abrupta do supervisor | Observador verificou ambos os processos vivos por handles | Após `TerminateProcess` no supervisor, ambos os handles sinalizaram término |
+
+Para repetir, mantenha juntos `proof.py`, `inherited-mxc.py`, `mxc-helper.mjs`, `behavior-proof.py`, `behavior-helper.mjs`, `fixed-payload.py`, `test-cleanup.py` e `test-report-scope.py`. Defina `TRILHA_ELECTRON` como o caminho do executável Electron compatível e `TRILHA_MXC_ROOT` como o diretório que contém `node_modules/@microsoft/mxc-sdk` e `official-runtime/python.exe`. A partir do diretório dos ensaios, execute `python -O -B test-cleanup.py`, `python -O -B test-report-scope.py`, `python -O -B proof.py`, `python -O -B inherited-mxc.py`, novamente com `--failures`, e `python -O -B behavior-proof.py`. O Windows precisa permitir a criação do PSEC. Não é necessário copiar resultados JSON.
+
+Cada execução usa uma pasta temporária própria no diretório dos ensaios; os relatórios são gravados em um arquivo temporário e publicados por renomeação antes da leitura. O controlador é dono da pasta usada pelo teste de queda para poder limpá-la após a morte do supervisor. O argumento interno do teste de queda aceita somente um identificador de pasta temporária válido, e o relatório usa criação exclusiva e renomeação sem sobrescrita. O teste de escopo rejeitou caminhos arbitrários e confirmou que um arquivo fictício existente permanece intacto. Arquivos fixos deixados por versões anteriores do ensaio não são lidos nem apagados. Os relatórios temporários contêm PIDs locais. A limpeza tenta cada etapa independentemente; o teste de falhas simula falhas ao fechar o Job e ao encerrar o processo. Somente handles retornados pela criação direta do processo podem ser usados para término forçado: handles abertos posteriormente por PID são apenas observados e fechados, nunca usados para terminar processos. As verificações de segurança são explícitas e também foram executadas com `python -O`.
+
+Os resultados não demonstram resistência a todos os canais de acesso ou escapes, nem o comportamento em outras versões, configurações, Windows Home, aplicativo instalado ou código adversarial. O teste de memória mede uma alocação de commit por processo; não testa a cota agregada do Job. O teste de processos cobre apenas os limites e a árvore observados. O término após a queda não distingue isoladamente todos os mecanismos que podem contribuir para a limpeza. A verificação do processo MXC usa o PID fornecido pelo SDK e um handle aberto em seguida, não um handle entregue diretamente pelo SDK. Estes ensaios não autorizam a execução de programas de estudantes.

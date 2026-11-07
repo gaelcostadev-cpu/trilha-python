@@ -16,3 +16,9 @@ memory-crash-pid.txt
 crash-scratch/
 locked-live-*/
 security-run-*/
+
+job-proof/__pycache__/
+job-proof/inherited-*/
+job-proof/behavior-*/
+job-proof/crash-*/
+job-proof/job-proof-*/
