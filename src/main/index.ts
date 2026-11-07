@@ -3,6 +3,7 @@ import path from 'node:path';
 import { skills } from '../domain';
 import { createChatGPTService } from './chatgpt';
 import { Store } from './store';
+import { registerPythonIpc } from './python-ipc';
 import { teacherContext, type Personality } from './teacher';
 
 let store: Store;
@@ -43,6 +44,7 @@ app.whenReady().then(async () => {
   teacher = createChatGPTService({ dataDir: app.getPath('userData'), openExternal: url => shell.openExternal(url) });
   try { account = teacher.localStatus(); } catch { account = { connected: false, planEnabled: false, usagePaused: false }; }
   checking = teacher.status().then(status => { account = status; }).catch(() => { account = { ...account, planEnabled: false }; });
+  registerPythonIpc(ipcMain, trusted);
   ipcMain.handle('school:open-usage', event => { trusted(event); return shell.openExternal('https://chatgpt.com/settings/usage'); });
   ipcMain.handle('school:state', async event => { trusted(event); await checking; return state(); });
   ipcMain.handle('school:sign-in', async event => {

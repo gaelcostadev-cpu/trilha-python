@@ -24,3 +24,7 @@ Os testes verificam entrada e saída, erros, timeout, cancelamento, limite de sa
 Ainda faltam auditoria independente do código final, testes de falha em cada etapa, garantias de integridade do runtime instalado e limpeza após queda do aplicativo. Também faltam testes mais amplos de rede externa, arquivos, links, interface, IPC e criação de processos por intermediários, além de validação com o aplicativo instalado em Windows Home. O teste de uma política ou da presença de MXC não substitui testes do artefato final. Não exponha este candidato ao editor até que essas verificações estejam concluídas.
 
 As regras experimentais são específicas de Windows x64; se a plataforma ou o nível de isolamento exigido não estiver disponível, a execução falha. Consulte [Microsoft MXC](https://github.com/microsoft/mxc) e a [versão oficial do Python](https://www.python.org/downloads/release/python-31410/).
+
+## Variante com travas e código em memória
+
+A variante mais recente e seus testes fixos estão descritos em [LOCKED-CANDIDATE.md](LOCKED-CANDIDATE.md). Ela continua experimental e não deve executar código real. A variante anterior `broker-runner.mjs` pode deixar o programa em arquivo temporário após queda do supervisor; não use código particular nos ensaios.

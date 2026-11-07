@@ -22,7 +22,17 @@ export interface SchoolState {
   onlineValidated: boolean;
   executionAvailable: boolean;
 }
+export interface RuntimeStatus { available: boolean; reason: string; }
+export interface PythonResult {
+  reason: 'completed' | 'cancelled' | 'timeout' | 'output_limit';
+  exitCode?: number;
+  stdout: string;
+  stderr: string;
+}
 export interface SchoolAPI {
+  runtimeStatus(): Promise<RuntimeStatus>;
+  runPython(code: string, input: string): Promise<PythonResult>;
+  cancelPython(): Promise<boolean>;
   openUsage(): Promise<void>;
   signIn(): Promise<SchoolState>;
   signOut(): Promise<SchoolState>;

@@ -1,0 +1,2 @@
+runtime-manifest.json -text whitespace=cr-at-eol
+payload/gate-stdin-locked.py -text whitespace=cr-at-eol

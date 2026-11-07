@@ -7,3 +7,11 @@ broker-tests.json
 broker-security-tests.json
 broker-isolation-result.json
 broker-wmi-result.json
+
+locked-memory-tests.json
+locked-memory-security-tests.json
+locked-live-result.json
+memory-crash-result.json
+memory-crash-pid.txt
+crash-scratch/
+locked-live-*/

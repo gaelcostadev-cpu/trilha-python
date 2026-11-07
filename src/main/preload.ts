@@ -1,5 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld('school', {
+  runtimeStatus: () => ipcRenderer.invoke('school:runtime-status'),
+  runPython: (code: string, input: string) => ipcRenderer.invoke('school:run-python', code, input),
+  cancelPython: () => ipcRenderer.invoke('school:cancel-python'),
   openUsage: () => ipcRenderer.invoke('school:open-usage'),
   getState: () => ipcRenderer.invoke('school:state'),
   signIn: () => ipcRenderer.invoke('school:sign-in'),

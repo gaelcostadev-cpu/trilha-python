@@ -27,3 +27,12 @@ Data: 6 de novembro de 2026. **Resultado: a execução de código no Trilha Pyth
 
 A documentação da Microsoft descreve [AppContainer e capacidades](https://learn.microsoft.com/en-us/windows/win32/secauthz/implementing-an-appcontainer) e o [SDK MXC](https://github.com/microsoft/mxc). Esses documentos sustentam o desenho dos testes, mas não substituem a validação do aplicativo.
 
+
+## Ensaios adicionais de 6 de novembro
+
+- Um pipe nomeado de teste aceitou conexão do processo de controle, mas recusou a conexão do processo isolado. Um ensaio COM específico não conseguiu criar o arquivo canário a partir do processo isolado; esses ensaios não abrangem todos os mecanismos de comunicação ou criação de processos.
+- Um candidato separado passou o código por entrada padrão, sem gravá-lo deliberadamente em arquivo temporário. No teste de queda de sua variante anterior, o processo de teste terminou e o código não foi encontrado no diretório temporário inspecionado. Isso não exclui paginação, dumps ou outras cópias; a variante com travas ainda precisa repetir esse teste de queda.
+- As travas experimentais recusaram alteração de arquivos abertos e rejeitaram links preexistentes nos casos testados. Um hardlink preexistente em diretório autorizado permitiu ler um canário privado em outro ensaio; com a trava ativa, uma tentativa específica de criar hardlink foi recusada, mas um arquivo comum ainda pôde ser criado. Os diretórios ancestrais e suas permissões ainda não estão suficientemente protegidos.
+- Os testes com programas fixos verificaram entrada Unicode, importação de `__main__`, limite de saída UTF-8, timeout, cancelamento, memória e processos. A associação ao processo pelo PID ainda precisa ser comprovada contra reutilização, e faltam testes de falhas nativas e auditoria independente. O candidato permanece experimental e desconectado do aplicativo.
+
+A interface foi preparada para entrada, resultado e cancelamento, mas a ponte do aplicativo continua recusando toda execução. Não há validação no Windows Home nem no aplicativo instalado.
