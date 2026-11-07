@@ -28,3 +28,13 @@ As regras experimentais são específicas de Windows x64; se a plataforma ou o n
 ## Variante com travas e código em memória
 
 A variante mais recente e seus testes fixos estão descritos em [LOCKED-CANDIDATE.md](LOCKED-CANDIDATE.md). Ela continua experimental e não deve executar código real. A variante anterior `broker-runner.mjs` pode deixar o programa em arquivo temporário após queda do supervisor; não use código particular nos ensaios.
+
+## Testes adicionais do isolamento
+
+`run-tests.ps1` também executa os testes da variante com travas. Para comparar o acesso do host e do processo isolado a canários de arquivo, TCP, pipe nomeado e WMI, execute separadamente, nesta pasta, com Node compatível com o SDK:
+
+```powershell
+node security-check.mjs . --external
+```
+
+O teste externo faz somente uma conexão de controle a `1.1.1.1:443`. Sem `--external`, o teste de rede externa fica bloqueado e o comando retorna falha. Para UDP, ausência de pacote recebido sem negação explícita é inconclusiva; qualquer caso inconclusivo também retorna falha. A saída pode conter caminhos locais: revise-a antes de compartilhar. Os testes não liberam o uso de código real.

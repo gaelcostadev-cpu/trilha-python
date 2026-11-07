@@ -6,7 +6,9 @@ if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'node_modules\@microso
 $previous = $env:ELECTRON_RUN_AS_NODE
 try {
   $env:ELECTRON_RUN_AS_NODE = '1'
-  foreach ($test in @('broker-tests.mjs', 'broker-security-tests.mjs', 'broker-isolation.mjs', 'broker-wmi.mjs')) {
+  & node --test (Join-Path $PSScriptRoot 'tests\lock-runtime.test.mjs') (Join-Path $PSScriptRoot 'security-verdicts.test.mjs')
+  if ($LASTEXITCODE -ne 0) { throw 'Falha nos testes de integridade e travas.' }
+  foreach ($test in @('broker-tests.mjs', 'broker-security-tests.mjs', 'broker-isolation.mjs', 'broker-wmi.mjs', 'locked-memory-tests.mjs', 'locked-memory-security-tests.mjs', 'locked-live-test.mjs')) {
     $script = Join-Path $PSScriptRoot $test
     $process = Start-Process -FilePath $electron -ArgumentList @('"' + $script + '"') -WorkingDirectory $PSScriptRoot -WindowStyle Hidden -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Falha em $test. Consulte o resultado local." }
@@ -20,7 +22,7 @@ try {
   $hostResult = $wmi.host.stdout | ConvertFrom-Json
   $sandboxResult = $wmi.sandbox.stdout | ConvertFrom-Json
   if ($wmi.host.status -ne 0 -or $hostResult.connect -ne 0 -or $sandboxResult.connect -ne -2147024891) { throw 'O teste WMI foi inconclusivo ou falhou.' }
-  Write-Output 'Testes experimentais passaram. Isso não libera a execução no aplicativo.'
+  Write-Output 'Testes das variantes antiga e com travas passaram. Isso não libera a execução no aplicativo.'
 } finally {
   $env:ELECTRON_RUN_AS_NODE = $previous
 }

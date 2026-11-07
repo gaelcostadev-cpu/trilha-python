@@ -15,3 +15,4 @@ memory-crash-result.json
 memory-crash-pid.txt
 crash-scratch/
 locked-live-*/
+security-run-*/

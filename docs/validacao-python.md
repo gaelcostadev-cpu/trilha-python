@@ -36,3 +36,13 @@ A documentação da Microsoft descreve [AppContainer e capacidades](https://lear
 - Os testes com programas fixos verificaram entrada Unicode, importação de `__main__`, limite de saída UTF-8, timeout, cancelamento, memória e processos. A associação ao processo pelo PID ainda precisa ser comprovada contra reutilização, e faltam testes de falhas nativas e auditoria independente. O candidato permanece experimental e desconectado do aplicativo.
 
 A interface foi preparada para entrada, resultado e cancelamento, mas a ponte do aplicativo continua recusando toda execução. Não há validação no Windows Home nem no aplicativo instalado.
+
+## Ensaios adicionais no Windows Pro
+
+Em um perfil de teste sem credenciais, uma cópia portátil de verificação abriu uma janela e carregou conteúdo local. Não é validação de instalador nem da execução integrada. Um teste separado confirmou que um processo criado suspenso pode ser associado a um Job usando o handle retornado na criação antes de ser retomado; isso ainda não comprova a integração dessa técnica com o MXC.
+
+No candidato com travas, controles positivos do host e canários sintéticos indicaram negação de leitura e escrita de arquivo, conexão TCP IPv4 local e externa a um único destino, pipe nomeado e conexão WMI. No teste UDP local, o envio retornou sucesso, mas o receptor não observou o pacote isolado; o resultado é inconclusivo e não prova bloqueio. Estes casos não abrangem todos os destinos, mecanismos de comunicação ou versões do Windows. O teste reproduzível `security-check.mjs` falha quando há resultado inconclusivo.
+
+Um segundo ensaio sintético criou um intermediário suspenso, associou-o ao Job pelo handle original e confirmou que o processo MXC/PSEC vivo pertencia ao mesmo Job. O fechamento do último handle encerrou ambos. Casos de falha em três pontos do ensaio encerraram os processos observados. Isso é uma alternativa promissora à associação posterior por PID, mas ainda não demonstra imposição de todas as cotas, recuperação após queda abrupta, proteção contra ações adversariais ou segurança do executor integrado.
+
+Com esse Job herdado, um programa fixo isolado não conseguiu abrir o supervisor para duplicar handles; o controle no host conseguiu. Uma alocação de 640 MiB passou com limite por processo de 1 GiB e foi recusada com limite de 512 MiB. Um subprocesso foi criado com limite de 16 processos, mas recusado com limite de 2. Em outro ensaio, o encerramento forçado do supervisor foi seguido pelo término dos dois processos observados. Os resultados valem somente para os cenários testados; não cobrem a cota agregada de memória, todos os escapes ou Windows Home. A observação do processo MXC ainda usa um handle aberto a partir do PID fornecido pelo SDK.
