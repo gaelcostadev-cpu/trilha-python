@@ -1,0 +1,10 @@
+import { mkdirSync,writeFileSync } from 'node:fs';
+import { dirname,join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createExperimentalRunner } from './broker-runner.mjs';
+const root=dirname(fileURLToPath(import.meta.url)),scratch=join(root,'prototype-scratch');mkdirSync(scratch,{recursive:true});const runner=createExperimentalRunner(join(root,'official-runtime'),scratch);const tests=[];
+async function test(name,code,check){try{const result=await runner.execute(code);tests.push({name,ok:check(result),details:result})}catch(e){tests.push({name,ok:false,error:String(e)})}}
+await test('supervisor protegido',`import ctypes as c,json\nfrom ctypes import wintypes as w\nk=c.WinDLL('kernel32',use_last_error=True)\nk.OpenProcess.argtypes=[w.DWORD,w.BOOL,w.DWORD];k.OpenProcess.restype=w.HANDLE\nk.CloseHandle.argtypes=[w.HANDLE]\nh=k.OpenProcess(0x40,False,${process.pid})\nprint(json.dumps({'broker_dup_handle_opened':bool(h),'error':c.get_last_error()}))\nif h:k.CloseHandle(h)\n`,r=>JSON.parse(r.stdout).broker_dup_handle_opened===false);
+await test('limite de memória',`try:\n x=bytearray(200*1024*1024)\n print('LIMIT_NOT_ENFORCED')\nexcept MemoryError:\n print('MEMORY_LIMIT')\n`,r=>r.stdout.includes('MEMORY_LIMIT')&&!r.stdout.includes('LIMIT_NOT_ENFORCED'));
+await test('limite de processos',`import subprocess,sys,json\np=[]\ntry:\n for i in range(6):\n  p.append(subprocess.Popen([sys.executable,'-I','-c','import time;time.sleep(8)']))\n print(json.dumps({'count':len(p),'limited':False,'pids':[x.pid for x in p]}),flush=True)\nexcept OSError as e:\n print(json.dumps({'count':len(p),'limited':True,'error':e.winerror,'pids':[x.pid for x in p]}),flush=True)\n`,r=>{const v=JSON.parse(r.stdout);v.childCleanup=v.pids.every(pid=>{try{process.kill(pid,0);return false}catch(e){return e.code==='ESRCH'}});return v.limited&&v.count<=3&&v.childCleanup});
+writeFileSync(join(root,'broker-security-tests.json'),JSON.stringify({tests},null,2));if(tests.some(t=>!t.ok))process.exitCode=1;

@@ -1,0 +1,9 @@
+{
+  "name": "trilha-python-isolation-experiment",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@microsoft/mxc-sdk": "1.0.1",
+    "koffi": "3.3.7"
+  }
+}
