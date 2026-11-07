@@ -40,3 +40,5 @@ node security-check.mjs . --external
 O teste externo faz somente uma conexão de controle a `1.1.1.1:443`. Sem `--external`, o teste de rede externa fica bloqueado e o comando retorna falha. Para UDP, ausência de pacote recebido sem negação explícita é inconclusiva; qualquer caso inconclusivo também retorna falha. A saída pode conter caminhos locais: revise-a antes de compartilhar. Os testes não liberam o uso de código real.
 
 Os ensaios sintéticos sobre associação ao Job e limites herdados estão em [job-proof/RESULTADOS.md](job-proof/RESULTADOS.md). Eles são separados do aplicativo e não aceitam programas de estudantes.
+
+Um candidato adicional, restrito a casos sintéticos, está em [job-candidate/LEIA-ME.md](job-candidate/LEIA-ME.md). Ele não recebe código de estudantes e não está integrado ao aplicativo.

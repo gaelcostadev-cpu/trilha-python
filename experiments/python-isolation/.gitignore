@@ -22,3 +22,6 @@ job-proof/inherited-*/
 job-proof/behavior-*/
 job-proof/crash-*/
 job-proof/job-proof-*/
+
+job-candidate/candidate-*/
+job-candidate/__pycache__/
